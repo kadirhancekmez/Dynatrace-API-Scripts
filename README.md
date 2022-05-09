@@ -4,6 +4,6 @@
 
 # Dynatrace-API-Scripts
 
-The purpose of these projects is to solve the issues that we cannot manage with the [Dynatrace](https://www.dynatrace.com/) Interface, using the Dynatrace API.
+The purpose of these projects is to solve the issues that we cannot manage with the Dynatrace Interface, using the Dynatrace API.
 
 The language used for coding is Python 
