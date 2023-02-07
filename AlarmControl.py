@@ -1,29 +1,26 @@
-from asyncore import read
-from json import load
-#from openpyxl import Workbook,load_workbook
-import json
-#import openpyxl
-from pathlib import Path
-from pickle import TRUE
-from traceback import print_tb
-from xml.dom.minidom import Entity
-import requests
-import urllib3
-from datetime import datetime
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-import xlsxwriter
-import datetime
-import pytz
- 
+def add_to_counter(x, ManagmentZone, counter):
+    if x["impactedEntities"][0]["entityId"]["type"] == "SERVICE":
+        counter[ManagmentZone]["fs"] += 1
+    elif x["impactedEntities"][0]["entityId"]["type"] == "HOST":
+        hostıd = (x["impactedEntities"][0]["entityId"]["id"])
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-
-
+        responseHost = requests.get(
+        GeneralUrl + ENV + '/api/v2/entities/' + hostıd ,
+        headers=headers,
+        verify=False
+        )
+        HostInfo = json.loads(responseHost.text)
+        i = HostInfo["properties"]["monitoringMode"]
+        print(i)
+        if i == "FULL_STACK":
+                counter[ManagmentZone]["fs"] += 1
+        else:      
+                counter[ManagmentZone]["io"] += 1
+    else:
+        counter[ManagmentZone]["app"] += 1
+    return counter
 
 def Alarm(GeneralUrl,ENV,Token):
-    
     headers = {
     'accept': 'application/json; charset=utf-8',
     'Authorization': Token,
@@ -43,49 +40,11 @@ def Alarm(GeneralUrl,ENV,Token):
             if  x["managementZones"][0]["name"] not in counter: 
                 ManagmentZone = x["managementZones"][0]["name"]
                 counter[ManagmentZone] = {"io":0 , "fs":0 , "app":0 }
-                
-            if x["impactedEntities"][0]["entityId"]["type"] == "SERVICE":
-                counter[ManagmentZone]["fs"] += 1
-            elif x["impactedEntities"][0]["entityId"]["type"] == "HOST":
-                hostıd = (x["impactedEntities"][0]["entityId"]["id"])
-                
-                responseHost = requests.get(
-                GeneralUrl + ENV + '/api/v2/entities/' + hostıd ,
-                headers=headers,
-                verify=False
-                )
-                HostInfo = json.loads(responseHost.text)
-                i = HostInfo["properties"]["monitoringMode"]
-                print(i)
-                if i == "FULL_STACK":
-                        counter[ManagmentZone]["fs"] += 1
-                else:      
-                        counter[ManagmentZone]["io"] += 1
-            else:
-                counter[ManagmentZone]["app"] += 1
+            counter = add_to_counter(x, ManagmentZone, counter)
         else:
-             
             ManagmentZone = "YOK"
             counter[ManagmentZone] = {"io":0 , "fs":0 , "app":0 }
-            if x["impactedEntities"][0]["entityId"]["type"] == "SERVICE":
-                counter[ManagmentZone]["fs"] += 1
-            elif x["impactedEntities"][0]["entityId"]["type"] == "HOST":
-                hostıd = (x["impactedEntities"][0]["entityId"]["id"])
-                
-                responseHost = requests.get(
-                GeneralUrl + ENV + '/api/v2/entities/' + hostıd ,
-                headers=headers,
-                verify=False
-                )
-                HostInfo = json.loads(responseHost.text)
-                i = HostInfo["properties"]["monitoringMode"]
-                print(i)
-                if i == "FULL_STACK":
-                        counter[ManagmentZone]["fs"] += 1
-                else:      
-                        counter[ManagmentZone]["io"] += 1
-            else:
-                counter[ManagmentZone]["app"] += 1
+            counter = add_to_counter(x, ManagmentZone, counter)
     print(counter)
-    
-Alarm(GeneralUrl,ProdEnv,ProdToken)
+
+Alarm(GeneralUrl,ProdEnv,ProdToken)  
