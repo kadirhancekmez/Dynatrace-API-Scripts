@@ -35,11 +35,6 @@ def Alarm(GeneralUrl,ENV,Token):
 
     counter = {}
 
-    # create data frame from counter dictionary
-    df = pd.DataFrame.from_dict(counter, orient='index')
-
-    # write data frame to excel file
-    df.to_excel("counter.xlsx")
     
     for x in Alarm["problems"]:
         #print(len(x["managementZones"]))
@@ -53,6 +48,11 @@ def Alarm(GeneralUrl,ENV,Token):
             ManagmentZone = "YOK"
             counter[ManagmentZone] = {"io":0 , "fs":0 , "app":0 }
             counter = add_to_counter(x, ManagmentZone, counter)
-    print(counter)
+    
+    # create data frame from counter dictionary
+    df = pd.DataFrame.from_dict(counter, orient='index')
+
+    # write data frame to excel file
+    df.to_excel("counter.xlsx")
 
 Alarm(GeneralUrl,ProdEnv,ProdToken)  
