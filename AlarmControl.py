@@ -1,3 +1,5 @@
+ 
+
 def add_to_counter(x, ManagmentZone, counter):
     if x["impactedEntities"][0]["entityId"]["type"] == "SERVICE":
         counter[ManagmentZone]["fs"] += 1
@@ -32,6 +34,12 @@ def Alarm(GeneralUrl,ENV,Token):
     Alarm = json.loads(responseALARM.text)
 
     counter = {}
+
+    # create data frame from counter dictionary
+    df = pd.DataFrame.from_dict(counter, orient='index')
+
+    # write data frame to excel file
+    df.to_excel("counter.xlsx")
     
     for x in Alarm["problems"]:
         #print(len(x["managementZones"]))
